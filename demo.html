@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+    <meta charset="UTF-8">
+    <title>My 2016 by ddd702</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="http://m.sui.taobao.org/dist/css/sm.css" media="screen">
+    <style>
+    html,body{
+        height:100%;
+        overflow:hidden;
+    }
+    .content{
+        position:relative;
+
+    }
+    .drop-box {
+        width: 70px;
+        height: 70px;
+        background-color: #f07;
+        margin: 10px;
+    }
+    .drop-box.active{
+          background-color: #f70;
+    }
+    #j-drag{
+        position:absolute; 
+    }
+    </style>
+</head>
+
+<body>
+    <div class="content">
+        <img src="index1_6.png" width="50" id="j-drag">
+        <div  style="margin-top: 190px;" class="drop-box j-drop" data-value="1">
+        </div>
+        <div class="drop-box j-drop pull-right" data-value="2">
+        </div>
+        <div style="margin-top: 90px;margin-left:50px;" class="drop-box j-drop pull-left" data-value="3">
+        </div>
+        <div style="margin-left:50px;" class="drop-box j-drop pull-left" data-value="4">
+        </div>
+    </div>
+    <script src="http://cdn.bootcss.com/jquery/2.1.4/jquery.min.js"></script>
+    <script>
+    var $drops = $('.j-drop');
+    var $drag = $('#j-drag');
+    var isSelected=null;
+    var dragOpt = {
+        initY: $drag.offset().top,
+        initX: $drag.offset().left,
+        x:$drag.offset().left,
+        y:$drag.offset().top,
+        w: $drag.width(),
+        h: $drag.height()
+    };
+    var pointOpt={
+        initX:0,
+        initY:0,
+        relateX:0,
+        relateY:0
+    }
+    var dropsOpt = [];
+    $.each($drops, function(index, $el) {
+        dropsOpt.push({
+            $el:$(this),
+            y:$(this).offset().top,
+            x:$(this).offset().left,
+            h:$(this).height(),
+            w:$(this).width(),
+            data:$(this).data('value'),
+            index:index
+        });
+    });
+    $('body').on('touchmove',function(event) {
+        event.preventDefault();
+    });
+    $drag.on('touchstart', function(event) {
+        var e=event.originalEvent;
+        pointOpt.initX=e.touches[0].pageX;
+        pointOpt.initY=e.touches[0].pageY;
+        pointOpt.relateX=pointOpt.initX-dragOpt.x;
+        pointOpt.relateY=pointOpt.initY-dragOpt.y;
+    });
+    $drag.on('touchend', function(event) {
+        var e=event.originalEvent;
+        var hasSelected=false;
+        $.each(dropsOpt,function(index, itm) {
+            var itmXMax=itm.x+itm.w;
+            var itmYMax=itm.y+itm.h;
+            var dragPointX=dragOpt.x+(dragOpt.w/2);
+            var dragPointY=dragOpt.y+(dragOpt.h/2);
+            console.warn((itm.x+itm.w)+","+itm.x);
+            console.warn((itm.y+itm.h)+","+itm.y);
+            console.info(dragOpt.x+(dragOpt.w/2));
+            console.info(dragOpt.y+(dragOpt.h/2));
+            console.log((itm.x+itm.w)>=dragOpt.x+(dragOpt.w/2)&&dragOpt.x+(dragOpt.w/2)>=itm.x);
+            if (itmXMax>dragPointX&&dragPointX>itm.x&&itmYMax>dragPointY&&dragPointY>itm.y) {
+                console.warn(index+'被选择');
+                $drops.removeClass('active');
+                dropsOpt[index].$el.addClass('active');
+                isSelected=dropsOpt[index].$el;
+                hasSelected=true;
+                return true;
+            }
+        });
+        if (!hasSelected) {
+            dragInit();
+            $drag.css({'top':dragOpt.initY,'left':dragOpt.initX});
+        }
+    });
+    $drag.on('touchmove', function(event) {
+        var e=event.originalEvent;
+        dragOpt.x=e.touches[0].pageX-pointOpt.relateX;
+        dragOpt.y=e.touches[0].pageY-pointOpt.relateY;
+        $(this).css({'top':dragOpt.y,'left':dragOpt.x});
+    });
+    function dragInit(){
+        $drops.removeClass('active');
+        dragOpt.x=dragOpt.initX;
+        dragOpt.y=dragOpt.initX;
+    }
+    </script>
+</body>
+
+</html>
